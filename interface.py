@@ -5,7 +5,7 @@ from vk_api.utils import get_random_id
 
 from config import comunity_token, acces_token
 from backend import VkTools
-from data_store import create_db, VK_Data_Base
+from data_base import create_db, VK_Data_Base
 # отправка сообщения
 
 
