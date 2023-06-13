@@ -4,7 +4,7 @@ from datetime import datetime
 import vk_api 
 from vk_api.exceptions import ApiError
 from config import acces_token
-from data_store import *
+from data_base import *
 
 # получение данных о пользователе
 
