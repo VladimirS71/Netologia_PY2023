@@ -103,7 +103,7 @@ if __name__ == '__main__':
     bot_interface = BotInterface(comunity_token, acces_token)
     bot_interface.event_handler()
     eng = BotInterface(comunity_token, acces_token)
-    attach = eng.get_worksheet(311363878)
+    attach = eng.get_worksheet()
     photo_string = ''
     for photo in attach:
         photo_string += f'photo{photo["owner_id"]}_{photo["id"]},'
