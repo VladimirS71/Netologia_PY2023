@@ -58,5 +58,4 @@ class VK_Data_Base:
         
 if __name__ == '__main__':
     eng = VK_Data_Base()
-    #print(eng.viewed_id(user_id=237176163, worksheet_id=702419612))
-    print(eng.viewed_favorite(user_id='311363878'))
+    print(eng.viewed_favorite(user_id=''))
