@@ -1,28 +1,7 @@
 # импорты
 import sqlalchemy as sq
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
-import psycopg2
-from config import *
-
-
-
-def create_db():
-        """
-        Заходит под админом и пробует создать базу данных NEPY8 под нужды ORM
-        для подключения к вашей базе данных в conn необходимо прописать ВАШИ логин
-        и пароль 
-        """
-        psd = ('password')
-        conn = psycopg2.connect(database='NEPY8', user='postgres', password=psd)
-        conn.set_session(autocommit=True)
-        cur = conn.cursor()
-        try:
-            cur.execute("""CREATE DATABASE NEPY8;""")
-            print('[+] База данных NEPY8 создана')
-        except Exception as e:
-            print(f'[-] База данных NEPY8 была создана ранее')
-            conn.rollback()
-        conn.close()
+from config import db_url_object
 
 class Base(DeclarativeBase): 
     pass
@@ -31,7 +10,7 @@ class Viewed(Base):
     __tablename__ = 'users'
     user_id = sq.Column(sq.Integer, primary_key=True)
     worksheet_id = sq.Column(sq.Integer, primary_key=True)
-    like_id = sq.Column(sq.Boolean(), default=False)
+    favourites = sq.Column(sq.Boolean(), default=False)
     
     
 class VK_Data_Base:
@@ -55,39 +34,29 @@ class VK_Data_Base:
        
     # добавление записи в бд
 
-    def add_user(self, user_id: int, worksheet_id: int, like_id: bool=False)-> None:
-            self._session.add(Viewed(user_id=user_id, worksheet_id=worksheet_id, like_id=like_id))
+    def add_user(self, user_id: int, worksheet_id: int, favourites: bool=False)-> None:
+            self._session.add(Viewed(user_id=user_id, worksheet_id=worksheet_id, favourites=favourites))
             self._session.commit()
-
-    # извлечение записей из БД
-
-    """def check_user(engine, user_id, worksheet_id, like_id: bool=True):
-        with Session(engine) as session:
-            from_bd = session.query(Viewed).filter(
-                Viewed.user_id == user_id,
-                Viewed.worksheet_id == worksheet_id,
-                Viewed.like_id == like_id
-            ).first()
-            return from_bd"""
 
     # обновление записи в бд
 
-    def update_user(self, user_id, worksheet_id, like_id: bool=True)-> None:
-            self._session.query(Viewed).filter(Viewed.user_id==user_id, Viewed.worksheet_id==worksheet_id).update({Viewed.like_id: like_id,})
+    def update_user(self, user_id, worksheet_id, favourites: bool=True)-> None:
+            self._session.query(Viewed).filter(Viewed.user_id==user_id, Viewed.worksheet_id==worksheet_id).update({Viewed.favourites: favourites})
             self._session.commit()
 
+    # проверка наличия записи в бд 
 
     def viewed_id(self, user_id: int, worksheet_id: int) -> bool:
             bd = self._session.query(Viewed).filter(Viewed.user_id == user_id, Viewed.worksheet_id == worksheet_id).all()
             return True if bd else False
-        
+    
+    # список анкет в избранном 
+
     def viewed_favorite(self, user_id: int) -> list:
-            self._session.query(Viewed.worksheet_id).filter(Viewed.user_id == user_id, Viewed.like_id == True).all()   
-            return
+            list = self._session.query(Viewed.worksheet_id).filter(Viewed.user_id == user_id, Viewed.favourites == True).all()   
+            return list
         
 if __name__ == '__main__':
-    create_db()
     eng = VK_Data_Base()
-    #print(eng.request_favorite(user_id=50))
-    #eng.add_user(79, 78, True)
-    print(eng.viewed_id(user_id=79, worksheet_id=78))
+    #print(eng.viewed_id(user_id=237176163, worksheet_id=702419612))
+    print(eng.viewed_favorite(user_id='311363878'))
