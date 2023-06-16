@@ -51,6 +51,34 @@ class BotInterface():
                     self.params = self.vk_tools.get_profile_info(event.user_id)
                     self.message_send(
                         event.user_id, f'Привет друг, {self.params["name"]}')
+                     # обработка данных, которых недостаточно
+                    self.keys = self.params.keys()
+                    for i in self.keys:
+                        if self.params[i] is None:
+                            if self.params['city'] is None:
+                                self.message_send(event.user_id, f'Введите город: ')
+                                for event_listen in self.longpoll.listen():
+                                    if event_listen.type == VkEventType.MESSAGE_NEW and event_listen.to_me:
+                                        res = self.vk_tools.get_city(event_listen.text.lower())
+                                        if res == "Error":
+                                            self.message_send(event_listen.user_id,
+                                                            f'Вы ввели неизвестный город. 
+                                                                Введите город: ')
+                                        else:
+                                            self.params['city'] = event_listen.text.lower()
+                                            break
+
+                            elif self.params['year'] is None:
+                                self.message_send(event.user_id, f'Введите дату рождения (дд.мм.гггг): ')
+                                for event_listen in self.longpoll.listen():
+                                    if event_listen.type == VkEventType.MESSAGE_NEW and event_listen.to_me:
+                                        if event_listen.text.lower().isdigit() and len(event_listen.text.lower()) == 4:
+                                            self.params['year'] = int(datetime.now().today().year) - int(event_listen.text.lower())
+                                            break
+                                        else:
+                                            self.message_send(event.user_id, f'Введите дату рождения (дд.мм.гггг): ')
+
+                            self.message_send(event.user_id, 'Вы авторизовались!')
                 elif event.text.lower() == 'поиск':
                     '''Логика для поиска анкет'''
                     self.message_send(
