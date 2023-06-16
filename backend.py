@@ -66,7 +66,29 @@ class VkTools:
 
         return result
 
-    
+    def get_city(self, city_name):
+        # Получение отсутствующего города в профиле
+
+        res = ""
+        city_name = (city_name[:15]) if len(city_name) > 15 else city_name
+        cities = self.vkapi.method("database.getCities",
+                                 {'items': 0,
+                                  'city_name': city_name,
+                                  'count': 10,
+                                  'offset': 0,
+                                  'q': city_name,
+                                  'need_all': True
+                                  }
+                                 )
+        try:
+            cities = cities['items']
+        except KeyError as e:
+            print(f'KeyError = {e}')
+            cities = []
+        for city in cities:
+            if city_name.lower() == city['title'].lower():
+                result = city['title']
+        return result if result != "" else "Error"    
                         
     def get_photos(self, id):
         try:
